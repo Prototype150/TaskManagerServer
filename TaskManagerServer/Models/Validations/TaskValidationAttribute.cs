@@ -22,6 +22,10 @@ namespace TaskManagerServer.Models.Validations
             {
                 return new ValidationResult("Wrong account id");
             }
+            if(task.SortId < 0)
+            {
+                return new ValidationResult("SortId cannot be less than 0");
+            }
 
             return ValidationResult.Success;
         }

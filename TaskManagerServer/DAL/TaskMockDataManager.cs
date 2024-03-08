@@ -15,8 +15,17 @@ namespace TaskManagerServer.DAL
         public bool AddTask(TaskModel taskModel)
         {
             taskModel.Id = counter++;
+            foreach(var t in _tasks.Where(x => x.AccountId == taskModel.AccountId && x.SortId >= taskModel.SortId))
+            {
+                t.SortId++;
+            }
             _tasks.Add(taskModel);
             return true;
+        }
+
+        public TaskModel? Get(int taskId)
+        {
+            return _tasks.FirstOrDefault(x => x.Id == taskId);
         }
 
         public IEnumerable<TaskModel> GetAccountTasks(int accountId)
@@ -33,7 +42,13 @@ namespace TaskManagerServer.DAL
         {
             var t = _tasks.FirstOrDefault(x => x.Id == taskId);
             if (t != null)
+            {
+                foreach (var f in _tasks.Where(x => x.AccountId == t.AccountId && x.SortId > t.SortId))
+                {
+                    f.SortId--;
+                }
                 _tasks.Remove(t);
+            }
             else
                 return false;
             return true;
@@ -45,9 +60,7 @@ namespace TaskManagerServer.DAL
 
             if(t != null)
             {
-                int id = t.Id;
                 t.Task = taskModel.Task;
-                t.Id = id;
             }
             else
             {

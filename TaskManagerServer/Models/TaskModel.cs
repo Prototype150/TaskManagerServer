@@ -13,5 +13,6 @@ namespace TaskManagerServer.Models
         public int Id { get; set; }
         public string Task { get; set; }
         public int AccountId { get; set; }
+        public int SortId { get; set; }
     }
 }

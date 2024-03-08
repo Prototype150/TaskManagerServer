@@ -9,5 +9,6 @@ namespace TaskManagerServer.DAL.Interfaces
         bool RemoveTask(int taskId);
         bool UpdateTask(int taskId, TaskModel taskModel);
         bool IsExist(int taskId);
+        TaskModel? Get(int taskId);
     }
 }
