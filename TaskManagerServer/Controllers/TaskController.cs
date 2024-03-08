@@ -36,6 +36,19 @@ namespace TaskManagerServer.Controllers
         }
 
         [HttpPut]
+        [Route("switch/{accountId}/{firstId}/{secondId}")]
+        public IActionResult SwitchTasks(int accountId,int firstId, int secondId)
+        {
+            var res = _taskManager.SwitchSortId(accountId, firstId, secondId);
+            if (!res.result)
+            {
+                return BadRequest(res.message);
+            }
+            
+            return Ok(true);
+        }
+
+        [HttpPut]
         [Route("update")]
         public IActionResult UpdateTask([FromBody]TaskModel taskModel)
         {

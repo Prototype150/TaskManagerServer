@@ -54,6 +54,21 @@ namespace TaskManagerServer.DAL
             return true;
         }
 
+        public bool SwitchSortId(int accountId, int first, int second)
+        {
+            var f = _tasks.FirstOrDefault(x => x.AccountId == accountId && x.SortId == first);
+            var s = _tasks.FirstOrDefault(x => x.AccountId == accountId && x.SortId == second);
+
+            if (f == null || s == null)
+                return false;
+
+            int temp = s.SortId;
+            s.SortId = f.SortId;
+            f.SortId = temp;
+
+            return true;
+        }
+
         public bool UpdateTask(int taskId, TaskModel taskModel)
         {
             var t = _tasks.FirstOrDefault(x => x.Id == taskId);

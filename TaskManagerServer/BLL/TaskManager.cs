@@ -28,6 +28,7 @@ namespace TaskManagerServer.BLL
             return (res, "ok");
         }
 
+
         public (bool result, string message) DeleteTask(int taskId)
         {
             if (!_taskDataManager.IsExist(taskId))
@@ -46,6 +47,14 @@ namespace TaskManagerServer.BLL
         public IEnumerable<TaskModel> GetAccountTasks(int accountId)
         {
             return _taskDataManager.GetAccountTasks(accountId).OrderBy(x => x.SortId);
+        }
+
+        public (bool result, string message) SwitchSortId(int accountId, int first, int second)
+        {
+            var r = _taskDataManager.SwitchSortId(accountId, first, second);
+            if (!r)
+                return (false, "not_exist");
+            return (true, "ok");
         }
 
         public (bool result, string message) UpdateTask(TaskModel task)

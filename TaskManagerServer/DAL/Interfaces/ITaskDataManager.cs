@@ -10,5 +10,6 @@ namespace TaskManagerServer.DAL.Interfaces
         bool UpdateTask(int taskId, TaskModel taskModel);
         bool IsExist(int taskId);
         TaskModel? Get(int taskId);
+        bool SwitchSortId(int accountId, int first, int second);
     }
 }
