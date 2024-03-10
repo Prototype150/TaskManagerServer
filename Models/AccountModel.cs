@@ -1,9 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using TaskManagerServer.Models.Validations;
-
-namespace TaskManagerServer.Models
+﻿namespace Models
 {
-    [AccountValidation]
     public class AccountModel
     {
         public AccountModel(string username, string password) { 

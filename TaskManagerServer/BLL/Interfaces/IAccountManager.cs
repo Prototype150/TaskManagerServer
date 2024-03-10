@@ -1,4 +1,4 @@
-﻿using TaskManagerServer.Models;
+﻿using Models;
 
 namespace TaskManagerServer.BLL.Interfaces
 {

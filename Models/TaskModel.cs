@@ -1,13 +1,11 @@
-﻿using TaskManagerServer.Models.Validations;
-
-namespace TaskManagerServer.Models
+﻿namespace Models
 {
-    [TaskValidation]
     public class TaskModel
     {
-        public TaskModel(int accountId, string task) {
+        public TaskModel(int accountId, string task, int sortId) {
             AccountId = accountId;
             Task = task;
+            SortId = sortId;
         }
 
         public int Id { get; set; }

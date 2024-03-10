@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using TaskManagerServer.BLL;
+using Models;
 using TaskManagerServer.BLL.Interfaces;
-using TaskManagerServer.Models;
-using TaskManagerServer.Models.Filters;
 using TaskManagerServer.Models.Validations;
 
 namespace TaskManagerServer.Controllers
@@ -19,7 +17,7 @@ namespace TaskManagerServer.Controllers
 
         [HttpPost]
         [Route("register")]
-        public IActionResult Register([FromBody]AccountModel newAccount)
+        public IActionResult Register([FromBody][AccountValidation]AccountModel newAccount)
         {
             (AccountModel? account, string message) res;
             res = _accountManager.Register(newAccount);
@@ -34,7 +32,7 @@ namespace TaskManagerServer.Controllers
 
         [HttpGet]
         [Route("login")]
-        public IActionResult Login([FromBody]AccountModel account)
+        public IActionResult Login([FromBody][AccountValidation]AccountModel account)
         {
             (AccountModel? account, string message) res;
             res = _accountManager.Login(account);

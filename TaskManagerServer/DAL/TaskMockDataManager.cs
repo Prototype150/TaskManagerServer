@@ -1,5 +1,5 @@
-﻿using TaskManagerServer.DAL.Interfaces;
-using TaskManagerServer.Models;
+﻿using Models;
+using TaskManagerServer.DAL.Interfaces;
 
 namespace TaskManagerServer.DAL
 {
@@ -10,6 +10,17 @@ namespace TaskManagerServer.DAL
         public TaskMockDataManager() {
             _tasks = new List<TaskModel>();
             counter = 0;
+
+            AddTask(new TaskModel(0, "Zero",0));
+            AddTask(new TaskModel(0, "First",1));
+            AddTask(new TaskModel(0, "Second",2));
+
+            AddTask(new TaskModel(1, "uss",0));
+
+            AddTask(new TaskModel(2, "ass",0));
+            AddTask(new TaskModel(2, "no",1));
+            AddTask(new TaskModel(2, "yes",2));
+            AddTask(new TaskModel(2, "heeee",3));
         }
 
         public bool AddTask(TaskModel taskModel)

@@ -1,6 +1,6 @@
-﻿using TaskManagerServer.BLL.Interfaces;
+﻿using Models;
+using TaskManagerServer.BLL.Interfaces;
 using TaskManagerServer.DAL.Interfaces;
-using TaskManagerServer.Models;
 
 namespace TaskManagerServer.BLL
 {

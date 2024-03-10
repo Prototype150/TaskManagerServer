@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Models;
 using TaskManagerServer.BLL.Interfaces;
-using TaskManagerServer.Models;
+using TaskManagerServer.Models.Validations;
 
 namespace TaskManagerServer.Controllers
 {
@@ -23,7 +24,7 @@ namespace TaskManagerServer.Controllers
 
         [HttpPost]
         [Route("add")]
-        public IActionResult AddTask(TaskModel taskModel)
+        public IActionResult AddTask([FromBody][TaskValidation]TaskModel taskModel)
         {
             var res = _taskManager.AddTask(taskModel);
 
@@ -50,7 +51,7 @@ namespace TaskManagerServer.Controllers
 
         [HttpPut]
         [Route("update")]
-        public IActionResult UpdateTask([FromBody]TaskModel taskModel)
+        public IActionResult UpdateTask([FromBody][TaskValidation]TaskModel taskModel)
         {
             var res = _taskManager.UpdateTask(taskModel);
 

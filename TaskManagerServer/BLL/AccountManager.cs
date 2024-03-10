@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using TaskManagerServer.BLL.Interfaces;
 using TaskManagerServer.DAL.Interfaces;
-using TaskManagerServer.Models;
+using Models;
 
 namespace TaskManagerServer.BLL
 {
