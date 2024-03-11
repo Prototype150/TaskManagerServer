@@ -12,6 +12,10 @@ namespace ConsoleTaskManager
     {
         public static async Task Main(string[] args)
         {
+            HttpClientHandler clientHandler = new HttpClientHandler();
+            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+
+            string url = "https://26.218.3.87:7025";
             AccountModel? mainAccount = null;
             List<TaskModel> tasks = new List<TaskModel>();
             string commandLine = Console.ReadLine() ?? "";
@@ -39,9 +43,9 @@ namespace ConsoleTaskManager
                         
                     }
                     else
-                        using (HttpClient client = new HttpClient())
+                        using (HttpClient client = new HttpClient(clientHandler))
                         {
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, new Uri("https://localhost:7025/account/register")) { Content = new StringContent(JsonSerializer.Serialize<AccountModel>(new AccountModel(res[1], res[2])), Encoding.UTF8, MediaTypeNames.Application.Json) };
+                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, new Uri(url+"/account/register")) { Content = new StringContent(JsonSerializer.Serialize<AccountModel>(new AccountModel(res[1], res[2])), Encoding.UTF8, MediaTypeNames.Application.Json) };
                             var responce = await client.SendAsync(message);
                             if (responce.IsSuccessStatusCode)
                             {
@@ -75,9 +79,9 @@ namespace ConsoleTaskManager
 
                     }
                     else
-                        using (HttpClient client = new HttpClient())
+                        using (HttpClient client = new HttpClient(clientHandler))
                         {
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, new Uri("https://localhost:7025/account/login")) { Content = new StringContent(JsonSerializer.Serialize<AccountModel>(new AccountModel(res[1], res[2])), Encoding.UTF8, MediaTypeNames.Application.Json) };
+                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, new Uri(url + "/account/login")) { Content = new StringContent(JsonSerializer.Serialize<AccountModel>(new AccountModel(res[1], res[2])), Encoding.UTF8, MediaTypeNames.Application.Json) };
                             var responce = await client.SendAsync(message);
                             if (responce.IsSuccessStatusCode)
                             {
@@ -111,9 +115,9 @@ namespace ConsoleTaskManager
 
                     }
                     else
-                        using (HttpClient client = new HttpClient())
+                        using (HttpClient client = new HttpClient(clientHandler))
                         {
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, new Uri("https://localhost:7025/task/" + mainAccount.Id));
+                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, new Uri(url + "/task/" + mainAccount.Id));
                             var responce = await client.SendAsync(message);
                             if (responce.IsSuccessStatusCode)
                             {
@@ -140,10 +144,10 @@ namespace ConsoleTaskManager
 
                     }
                     else
-                        using (HttpClient client = new HttpClient())
+                        using (HttpClient client = new HttpClient(clientHandler))
                         {
                             var newTask = new TaskModel(mainAccount.Id, res[1], tasks.Count);
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, new Uri("https://localhost:7025/task/add")) { Content = new StringContent(JsonSerializer.Serialize<TaskModel>(newTask), Encoding.UTF8, MediaTypeNames.Application.Json) };
+                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, new Uri(url + "/task/add")) { Content = new StringContent(JsonSerializer.Serialize<TaskModel>(newTask), Encoding.UTF8, MediaTypeNames.Application.Json) };
                             var responce = await client.SendAsync(message);
                             if (responce.IsSuccessStatusCode)
                             {
@@ -163,11 +167,11 @@ namespace ConsoleTaskManager
 
                     }
                     else
-                        using (HttpClient client = new HttpClient())
+                        using (HttpClient client = new HttpClient(clientHandler))
                         {
                             int index = Convert.ToInt32(res[1]) - 1;
                             var updatedTask = new TaskModel(tasks[index].AccountId, res[2], tasks[index].SortId) { Id = tasks[index].Id };
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Put, new Uri("https://localhost:7025/task/update")) { Content = new StringContent(JsonSerializer.Serialize<TaskModel>(updatedTask), Encoding.UTF8, MediaTypeNames.Application.Json) };
+                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Put, new Uri(url + "/task/update")) { Content = new StringContent(JsonSerializer.Serialize<TaskModel>(updatedTask), Encoding.UTF8, MediaTypeNames.Application.Json) };
                             var responce = await client.SendAsync(message);
                             if(responce.IsSuccessStatusCode)
                             {
@@ -194,11 +198,11 @@ namespace ConsoleTaskManager
 
                     }
                     else 
-                        using (HttpClient client = new HttpClient())
+                        using (HttpClient client = new HttpClient(clientHandler))
                         {
                             int index = Convert.ToInt32(res[1]) - 1;
                             int trueIndex = index;
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Delete, new Uri("https://localhost:7025/task/delete/" + tasks[index].Id));
+                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Delete, new Uri(url + "/task/delete/" + tasks[index].Id));
                             var responce = await client.SendAsync(message);
                             if (responce.IsSuccessStatusCode)
                             {
@@ -221,10 +225,61 @@ namespace ConsoleTaskManager
 
                                     inputLine--;
                                     tasks.RemoveAt(trueIndex);
+                                    for (int i = trueIndex; i < tasks.Count; i++)
+                                    {
+                                        tasks[i].SortId--;
+                                    }
                                 }
                             }
                         }
                 }
+
+                else if(mainCommand == "switch")
+                {
+                    if(res.Length != 3 || mainAccount == null || !isTaskListDisplayed)
+                    {
+
+                    }
+                    else
+                        using (HttpClient client = new HttpClient(clientHandler))
+                        {
+                            int realFirstIndex = Convert.ToInt32(res[1]);
+                            int realSecondIndex = Convert.ToInt32(res[2]);
+                            int first = tasks[Convert.ToInt32(res[1]) - 1].SortId;
+                            int second = tasks[Convert.ToInt32(res[2]) - 1].SortId;
+
+                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Put,new Uri($"{url}/task/switch/{mainAccount.Id}/{first}/{second}"));
+                            var responce = await client.SendAsync(message);
+                            if (responce.IsSuccessStatusCode)
+                            {
+                                string sResult = await responce.Content.ReadAsStringAsync();
+                                bool iS = JsonSerializer.Deserialize<bool>(sResult);
+                                if (iS)
+                                {
+                                    Console.CursorTop = realFirstIndex;
+                                    Console.CursorLeft = 0;
+                                    Console.Write(new String(' ', tasks[realFirstIndex - 1].Task.Length + 2));
+                                    Console.CursorLeft = 0;
+                                    Console.Write(realFirstIndex + "." + tasks[realSecondIndex - 1].Task);
+                                    Console.CursorLeft = 0;
+                                    Console.CursorTop = realSecondIndex;
+                                    Console.Write(new String(' ', tasks[realSecondIndex - 1].Task.Length + 2));
+                                    Console.CursorLeft = 0;
+                                    Console.Write(realSecondIndex + "." + tasks[realFirstIndex - 1].Task);
+
+                                    TaskModel temp = tasks[realFirstIndex - 1];
+                                    tasks[realFirstIndex - 1] = tasks[realSecondIndex - 1];
+                                    tasks[realSecondIndex - 1] = temp;
+
+                                    int tempSortId = tasks[realFirstIndex - 1].SortId;
+                                    tasks[realFirstIndex - 1].SortId = tasks[realSecondIndex - 1].SortId;
+                                    tasks[realSecondIndex - 1].SortId = tempSortId;
+                                }
+                            }
+                        }
+                }
+                clientHandler = new HttpClientHandler();
+                clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
 
                 Console.CursorLeft = 0;
                 Console.CursorTop = inputLine;
