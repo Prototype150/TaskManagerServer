@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Models;
 using TaskManagerServer.BLL.Interfaces;
 using TaskManagerServer.Models.Validations;
@@ -16,6 +17,7 @@ namespace TaskManagerServer.Controllers
         }
 
         [HttpGet]
+        [AllowAnonymous]
         [Route("{accountId}")]
         public IActionResult GetAccountTasks(int accountId)
         {
@@ -28,12 +30,12 @@ namespace TaskManagerServer.Controllers
         {
             var res = _taskManager.AddTask(taskModel);
 
-            if (!res.result)
+            if (res.result == null)
             {
                 return BadRequest(res.message);
             }
 
-            return Ok(true);
+            return Ok(res.result);
         }
 
         [HttpPut]
@@ -46,7 +48,7 @@ namespace TaskManagerServer.Controllers
                 return BadRequest(res.message);
             }
             
-            return Ok(true);
+            return Ok(res.result);
         }
 
         [HttpPut]
@@ -60,16 +62,16 @@ namespace TaskManagerServer.Controllers
                 return BadRequest(res.message);
             }
 
-            return Ok(true);
+            return Ok(res.result);
         }
 
         [HttpDelete]
         [Route("delete/{taskId}")]
         public IActionResult DeleteTask(int taskId)
         {
-            _taskManager.DeleteTask(taskId);
+            var res = _taskManager.DeleteTask(taskId);
 
-            return Ok(true);
+            return Ok(res.result);
         }
     }
 }

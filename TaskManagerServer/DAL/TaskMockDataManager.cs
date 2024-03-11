@@ -23,7 +23,7 @@ namespace TaskManagerServer.DAL
             AddTask(new TaskModel(2, "heeee",3));
         }
 
-        public bool AddTask(TaskModel taskModel)
+        public TaskModel? AddTask(TaskModel taskModel)
         {
             taskModel.Id = counter++;
             foreach(var t in _tasks.Where(x => x.AccountId == taskModel.AccountId && x.SortId >= taskModel.SortId))
@@ -31,7 +31,7 @@ namespace TaskManagerServer.DAL
                 t.SortId++;
             }
             _tasks.Add(taskModel);
-            return true;
+            return taskModel;
         }
 
         public TaskModel? Get(int taskId)

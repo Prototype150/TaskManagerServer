@@ -1,6 +1,7 @@
 ﻿using Models;
 using System.Net;
 using System.Net.Mime;
+using System.Net.Sockets;
 using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Text.Json;
@@ -141,11 +142,15 @@ namespace ConsoleTaskManager
                     else
                         using (HttpClient client = new HttpClient())
                         {
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, new Uri("https://localhost:7025/task/add")) { Content = new StringContent(JsonSerializer.Serialize<TaskModel>(new TaskModel(mainAccount.Id, res[1], tasks.Count)), Encoding.UTF8, MediaTypeNames.Application.Json) };
+                            var newTask = new TaskModel(mainAccount.Id, res[1], tasks.Count);
+                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, new Uri("https://localhost:7025/task/add")) { Content = new StringContent(JsonSerializer.Serialize<TaskModel>(newTask), Encoding.UTF8, MediaTypeNames.Application.Json) };
                             var responce = await client.SendAsync(message);
                             if (responce.IsSuccessStatusCode)
                             {
-                                Console.WriteLine(res[1]);
+                                var a = await responce.Content.ReadAsStringAsync();
+                                newTask = JsonSerializer.Deserialize<TaskModel>(a, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                                tasks.Add(newTask);
+                                Console.WriteLine(inputLine+"."+res[1]);
                                 inputLine++;
                             }
                         }
@@ -161,21 +166,61 @@ namespace ConsoleTaskManager
                         using (HttpClient client = new HttpClient())
                         {
                             int index = Convert.ToInt32(res[1]) - 1;
-                            int howMuchToClean = tasks[index].Task.Length + 2;
-                            tasks[index].Task = res[2];
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Put, new Uri("https://localhost:7025/task/update")) { Content = new StringContent(JsonSerializer.Serialize<TaskModel>(tasks[index]), Encoding.UTF8, MediaTypeNames.Application.Json) };
+                            var updatedTask = new TaskModel(tasks[index].AccountId, res[2], tasks[index].SortId) { Id = tasks[index].Id };
+                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Put, new Uri("https://localhost:7025/task/update")) { Content = new StringContent(JsonSerializer.Serialize<TaskModel>(updatedTask), Encoding.UTF8, MediaTypeNames.Application.Json) };
+                            var responce = await client.SendAsync(message);
+                            if(responce.IsSuccessStatusCode)
+                            {
+                                string sResult = await responce.Content.ReadAsStringAsync();
+                                bool iS = JsonSerializer.Deserialize<bool>(sResult);
+                                if (iS)
+                                {
+                                    Console.CursorTop = index + 1;
+                                    Console.CursorLeft = 0;
+
+                                    Console.Write(new String(' ', tasks[index].Task.Length + 2));
+                                    Console.CursorLeft = 0;
+                                    Console.Write(index + 1 + "." + res[2]);
+                                }
+                                tasks[index].Task = res[2];
+                            }
+                        }
+                }
+
+                else if(mainCommand == "delete")
+                {
+                    if(res.Length != 2 || mainAccount == null || !isTaskListDisplayed)
+                    {
+
+                    }
+                    else 
+                        using (HttpClient client = new HttpClient())
+                        {
+                            int index = Convert.ToInt32(res[1]) - 1;
+                            int trueIndex = index;
+                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Delete, new Uri("https://localhost:7025/task/delete/" + tasks[index].Id));
                             var responce = await client.SendAsync(message);
                             if (responce.IsSuccessStatusCode)
                             {
+                                int cleanL = tasks[index].Task.Length + 2;
                                 var a = await responce.Content.ReadAsStringAsync();
                                 var iS = JsonSerializer.Deserialize<bool>(a);
                                 if (iS)
                                 {
-                                    Console.CursorLeft = 0;
                                     Console.CursorTop = index + 1;
-                                    Console.Write(new String(' ', howMuchToClean));
+                                    for (; index < tasks.Count - 1; index++)
+                                    {
+                                        Console.CursorTop = index + 1;
+                                        Console.CursorLeft = 0;
+                                        Console.Write(new String(' ', tasks[index].Task.Length + 2));
+                                        Console.CursorLeft = 0;
+                                        Console.WriteLine(index + 1 + "." + tasks[index + 1].Task);
+                                    }
+                                    Console.Write(new String(' ', tasks[index].Task.Length + 2));
                                     Console.CursorLeft = 0;
-                                    Console.Write(index + 1 + "." + tasks[index].Task);
+
+                                    inputLine--;
+                                    tasks.RemoveAt(trueIndex);
                                 }
                             }
                         }

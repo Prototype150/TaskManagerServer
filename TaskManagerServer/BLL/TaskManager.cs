@@ -13,18 +13,18 @@ namespace TaskManagerServer.BLL
              _taskDataManager = taskDataManager;
         }
 
-        public (bool result, string message) AddTask(TaskModel newTask)
+        public (TaskModel? result, string message) AddTask(TaskModel newTask)
         {
             if (newTask.AccountId < 0)
-                return (false, "id");
+                return (null, "id");
             if (string.IsNullOrWhiteSpace(newTask.Task))
-                return (false, "empty:task");
+                return (null, "empty:task");
             if (newTask.SortId > GetAccountTasks(newTask.AccountId).Count())
-                return (false, "out_of_bounds:task_id");
+                return (null, "out_of_bounds:task_id");
 
-            bool res = _taskDataManager.AddTask(newTask);
-            if (!res)
-                return (false, "unknown_mistake");
+            var res = _taskDataManager.AddTask(newTask);
+            if (res == null)
+                return (null, "unknown_mistake");
             return (res, "ok");
         }
 

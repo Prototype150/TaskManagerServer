@@ -5,7 +5,7 @@ namespace TaskManagerServer.DAL.Interfaces
     public interface ITaskDataManager
     {
         IEnumerable<TaskModel> GetAccountTasks(int accountId);
-        bool AddTask(TaskModel taskModel);
+        TaskModel? AddTask(TaskModel taskModel);
         bool RemoveTask(int taskId);
         bool UpdateTask(int taskId, TaskModel taskModel);
         bool IsExist(int taskId);
