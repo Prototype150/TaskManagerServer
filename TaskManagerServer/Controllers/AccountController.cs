@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Models;
+using System.Security.Principal;
 using TaskManagerServer.BLL.Interfaces;
 using TaskManagerServer.Models.Validations;
 
@@ -17,10 +18,13 @@ namespace TaskManagerServer.Controllers
 
         [HttpPost]
         [Route("register")]
-        public IActionResult Register([FromBody][AccountValidation]AccountModel newAccount)
+        public IActionResult Register([FromBody]AccountModel newAccount)
         {
-            (AccountModel? account, string message) res;
-            res = _accountManager.Register(newAccount);
+            if (string.IsNullOrWhiteSpace(newAccount.Username))
+                return BadRequest("empty:username");
+            if (string.IsNullOrWhiteSpace(newAccount.Username))
+                return BadRequest("empty:password");
+            (AccountModel? account, string message) res = _accountManager.Register(newAccount);
             if (res.account == null)
             {
                 return BadRequest(res.message);
@@ -32,12 +36,17 @@ namespace TaskManagerServer.Controllers
 
         [HttpGet]
         [Route("login")]
-        public IActionResult Login([FromBody][AccountValidation]AccountModel account)
+        public IActionResult Login([FromBody]AccountModel account)
         {
-            (AccountModel? account, string message) res;
-            res = _accountManager.Login(account);
+            if (string.IsNullOrWhiteSpace(account.Username))
+                return BadRequest("empty:username");
+            if (string.IsNullOrWhiteSpace(account.Password))
+                return BadRequest("empty:password");
+            (AccountModel? account, string message) res = _accountManager.Login(account);
             if (res.account == null)
             {
+                if (res.message == "not_exist")
+                    return NotFound(res.message);
                 return BadRequest(res.message);
             }
 

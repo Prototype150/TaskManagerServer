@@ -14,6 +14,7 @@ namespace ConsoleTaskManager
         {
             HttpClientHandler clientHandler = new HttpClientHandler();
             clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+            int lastMessageLength = 0;
 
             string url = "https://26.218.3.87:7025";
             AccountModel? mainAccount = null;
@@ -52,6 +53,7 @@ namespace ConsoleTaskManager
                                 var stringResponce = await responce.Content.ReadAsStringAsync();
                                 mainAccount = JsonSerializer.Deserialize<AccountModel>(stringResponce, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                                 Console.Clear();
+                                lastMessageLength = "Register successful!".Length;
                                 Console.Write("Register successfull!");
 
                                 int a = Console.BufferWidth - ("Username: " + mainAccount.Username).Length;
@@ -88,6 +90,7 @@ namespace ConsoleTaskManager
                                 var stringResponce = await responce.Content.ReadAsStringAsync();
                                 mainAccount = JsonSerializer.Deserialize<AccountModel>(stringResponce, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                                 Console.Clear();
+                                lastMessageLength = "Login successful!".Length;
                                 Console.Write("Login successfull!");
 
                                 int a = Console.BufferWidth - ("Username: " + mainAccount.Username).Length;
