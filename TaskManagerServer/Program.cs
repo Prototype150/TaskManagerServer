@@ -3,7 +3,7 @@ using TaskManagerServer.BLL.Interfaces;
 using TaskManagerServer.DAL;
 using TaskManagerServer.DAL.Interfaces;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder();
 
 builder.WebHost.UseUrls($"https://{args[0]}:{args[1]}", $"http://{args[0]}:{args[2]}");
 
