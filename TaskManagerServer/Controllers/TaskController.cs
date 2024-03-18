@@ -72,6 +72,6 @@ namespace TaskManagerServer.Controllers
             var res = _taskManager.DeleteTask(taskId);
 
             return Ok(res.result);
-        }
+        } 
     }
 }

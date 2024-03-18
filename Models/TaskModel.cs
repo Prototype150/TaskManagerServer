@@ -12,5 +12,6 @@
         public string Task { get; set; }
         public int AccountId { get; set; }
         public int SortId { get; set; }
+        public bool IsCompleted { get; set; }
     }
 }

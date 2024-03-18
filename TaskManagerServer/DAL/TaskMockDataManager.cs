@@ -87,6 +87,7 @@ namespace TaskManagerServer.DAL
             if(t != null)
             {
                 t.Task = taskModel.Task;
+                t.IsCompleted = taskModel.IsCompleted;
             }
             else
             {
