@@ -1,4 +1,6 @@
-﻿using Models;
+﻿using ConsoleTaskManager.Command;
+using ConsoleTaskManager.Command.Interfaces;
+using Models;
 using System.Net;
 using System.Net.Mime;
 using System.Net.Sockets;
@@ -10,287 +12,172 @@ namespace ConsoleTaskManager
 {
     public class Program
     {
+        private static string _mainMessage = "";
+        public static string MainMessage
+        {
+            get { return _mainMessage; }
+            set 
+            {
+                Clean(0, 0, _mainMessage.Length);
+                WriteAt(0, 0, value);
+                _mainMessage = value;
+            }
+        }
+        private static AccountModel? MainAccount = null;
+        private static ICommandChecker commandChecker;
+
         public static async Task Main(string[] args)
         {
-            HttpClientHandler clientHandler = new HttpClientHandler();
-            clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
-            int lastMessageLength = 0;
+            commandChecker = new CommandChecker();
 
-            string url = "https://26.218.3.87:7025";
-            AccountModel? mainAccount = null;
-            List<TaskModel> tasks = new List<TaskModel>();
-            string commandLine = Console.ReadLine() ?? "";
-            Console.Clear();
-            Console.CursorVisible = false;
+            string connectionString = $"https://{args[0]}:{args[1]}";
+            string commandLine = (Console.ReadLine() ?? "").Trim();
+
             int inputLine = 0;
-            bool isTaskListDisplayed = false;
+
+            HttpClientHandler handler = new HttpClientHandler();
+            handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
 
             while (commandLine != "stop")
             {
-                var res = commandLine.Split(' ', StringSplitOptions.TrimEntries);
-                int commandLegth = res.Length;
+                string[] commandSplit = commandLine.Split(' ', StringSplitOptions.TrimEntries);
 
-                if (commandLegth == 0)
+                if (commandSplit[0] == "register")
                 {
-                    Console.CursorTop = inputLine;
-                    continue;
-                }
-
-                string mainCommand = res[0];
-                if (mainCommand == "register")
-                {
-                    if (res.Length != 3)
+                    if (commandChecker.IsCommandCorrect(CommandType.Register, commandSplit))
                     {
-                        
-                    }
-                    else
-                        using (HttpClient client = new HttpClient(clientHandler))
+                        using (HttpClient client = new HttpClient(handler))
                         {
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, new Uri(url+"/account/register")) { Content = new StringContent(JsonSerializer.Serialize<AccountModel>(new AccountModel(res[1], res[2])), Encoding.UTF8, MediaTypeNames.Application.Json) };
-                            var responce = await client.SendAsync(message);
+                            AccountModel newAccount = new AccountModel(commandSplit[1], commandSplit[2]);
+                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, new Uri(connectionString + "/account/register")) { Content = new StringContent(JsonSerializer.Serialize(newAccount), Encoding.UTF8, MediaTypeNames.Application.Json) };
+                            HttpResponseMessage responce = await client.SendAsync(message);
+                            string stringResponce = await responce.Content.ReadAsStringAsync();
+
                             if (responce.IsSuccessStatusCode)
                             {
-                                var stringResponce = await responce.Content.ReadAsStringAsync();
-                                mainAccount = JsonSerializer.Deserialize<AccountModel>(stringResponce, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                                Console.Clear();
-                                lastMessageLength = "Register successful!".Length;
-                                Console.Write("Register successfull!");
-
-                                int a = Console.BufferWidth - ("Username: " + mainAccount.Username).Length;
-                                int b = Console.BufferWidth - ("Password: " + mainAccount.Password).Length;
-
-                                Console.CursorLeft = a;
-                                Console.WriteLine("Username: " + mainAccount.Username);
-                                Console.CursorLeft = b;
-                                Console.WriteLine("Password: " + mainAccount.Password);
-                                Console.CursorLeft = 0;
+                                MainMessage = "Registered succesful!";
+                                MainAccount = JsonSerializer.Deserialize<AccountModel>(stringResponce, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                                 inputLine = 1;
-                                isTaskListDisplayed = false;
                             }
-                            else if (responce.StatusCode == HttpStatusCode.BadRequest)
+                            else
                             {
-
+                                MainMessage = stringResponce;
                             }
                         }
-                }
-
-                else if (mainCommand == "login")
-                {
-                    if (res.Length != 3)
-                    {
-
                     }
                     else
-                        using (HttpClient client = new HttpClient(clientHandler))
+                    {
+                        MainMessage = "Incorrect \"register\" command parameters.";
+                    }
+                }
+                else if (commandSplit[0] == "login")
+                {
+                    if (commandChecker.IsCommandCorrect(CommandType.Login, commandSplit))
+                    {
+                        using (HttpClient client = new HttpClient(handler))
                         {
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, new Uri(url + "/account/login")) { Content = new StringContent(JsonSerializer.Serialize<AccountModel>(new AccountModel(res[1], res[2])), Encoding.UTF8, MediaTypeNames.Application.Json) };
-                            var responce = await client.SendAsync(message);
+                            AccountModel accountData = new AccountModel(commandSplit[1], commandSplit[2]);
+                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, new Uri(connectionString + "/account/login")) { Content = new StringContent(JsonSerializer.Serialize(accountData), Encoding.UTF8, MediaTypeNames.Application.Json) };
+                            HttpResponseMessage responce = await client.SendAsync(message);
+                            string stringResponce = await responce.Content.ReadAsStringAsync();
+
                             if (responce.IsSuccessStatusCode)
                             {
-                                var stringResponce = await responce.Content.ReadAsStringAsync();
-                                mainAccount = JsonSerializer.Deserialize<AccountModel>(stringResponce, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                                Console.Clear();
-                                lastMessageLength = "Login successful!".Length;
-                                Console.Write("Login successfull!");
-
-                                int a = Console.BufferWidth - ("Username: " + mainAccount.Username).Length;
-                                int b = Console.BufferWidth - ("Password: " + mainAccount.Password).Length;
-
-                                Console.CursorLeft = a;
-                                Console.WriteLine("Username: " + mainAccount.Username);
-                                Console.CursorLeft = b;
-                                Console.WriteLine("Password: " + mainAccount.Password);
-                                Console.CursorLeft = 0;
+                                MainMessage = "Login succesful!";
+                                MainAccount = JsonSerializer.Deserialize<AccountModel>(stringResponce, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                                 inputLine = 1;
-                                isTaskListDisplayed = false;
                             }
-                            else if(responce.StatusCode == HttpStatusCode.BadRequest)
+                            else
                             {
-
+                                MainMessage = stringResponce;
                             }
                         }
-                }
-
-                else if(mainCommand == "tasks")
-                {
-                    if (res.Length != 1 || mainAccount == null)
-                    {
-
                     }
                     else
-                        using (HttpClient client = new HttpClient(clientHandler))
+                    {
+                        MainMessage = "Incorrect \"login\" command parameters.";
+                    }
+                }
+                else if (commandSplit[0] == "tasks")
+                {
+                    if (commandChecker.IsCommandCorrect(CommandType.GetTasks, commandSplit))
+                    {
+                        if (MainAccount != null)
                         {
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, new Uri(url + "/task/" + mainAccount.Id));
-                            var responce = await client.SendAsync(message);
-                            if (responce.IsSuccessStatusCode)
+                            using (HttpClient client = new HttpClient(handler))
                             {
-                                var stringResponce = await responce.Content.ReadAsStringAsync();
-                                tasks = JsonSerializer.Deserialize<List<TaskModel>>(stringResponce, new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? tasks;
-                                Console.CursorTop = 1;
-                                Console.CursorLeft = 0;
+                                HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, new Uri(connectionString + "/task/" + MainAccount.Id));
+                                HttpResponseMessage responce = await client.SendAsync(message);
+                                string stringResponce = await responce.Content.ReadAsStringAsync();
 
-                                for (int i = 0; i < tasks.Count; i++)
+                                if (responce.IsSuccessStatusCode)
                                 {
-                                    Console.WriteLine(i+1 + "." + tasks[i].Task);
+                                    MainMessage = "Task list displayed!";
+                                    IEnumerable<TaskModel> tasks = JsonSerializer.Deserialize<IEnumerable<TaskModel>>(stringResponce, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                                 }
-
-                                inputLine = tasks.Count + 1;
-                                isTaskListDisplayed = true;
-                            }
-                        }
-                }
-
-                else if(mainCommand == "add")
-                {
-                    if (res.Length != 2 || mainAccount == null || !isTaskListDisplayed)
-                    {
-
-                    }
-                    else
-                        using (HttpClient client = new HttpClient(clientHandler))
-                        {
-                            var newTask = new TaskModel(mainAccount.Id, res[1], tasks.Count);
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Post, new Uri(url + "/task/add")) { Content = new StringContent(JsonSerializer.Serialize<TaskModel>(newTask), Encoding.UTF8, MediaTypeNames.Application.Json) };
-                            var responce = await client.SendAsync(message);
-                            if (responce.IsSuccessStatusCode)
-                            {
-                                var a = await responce.Content.ReadAsStringAsync();
-                                newTask = JsonSerializer.Deserialize<TaskModel>(a, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                                tasks.Add(newTask);
-                                Console.WriteLine(inputLine+"."+res[1]);
-                                inputLine++;
-                            }
-                        }
-                }
-
-                else if(mainCommand == "update")
-                {
-                    if (res.Length != 3 || mainAccount == null || !isTaskListDisplayed)
-                    {
-
-                    }
-                    else
-                        using (HttpClient client = new HttpClient(clientHandler))
-                        {
-                            int index = Convert.ToInt32(res[1]) - 1;
-                            var updatedTask = new TaskModel(tasks[index].AccountId, res[2], tasks[index].SortId) { Id = tasks[index].Id };
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Put, new Uri(url + "/task/update")) { Content = new StringContent(JsonSerializer.Serialize<TaskModel>(updatedTask), Encoding.UTF8, MediaTypeNames.Application.Json) };
-                            var responce = await client.SendAsync(message);
-                            if(responce.IsSuccessStatusCode)
-                            {
-                                string sResult = await responce.Content.ReadAsStringAsync();
-                                bool iS = JsonSerializer.Deserialize<bool>(sResult);
-                                if (iS)
+                                else
                                 {
-                                    Console.CursorTop = index + 1;
-                                    Console.CursorLeft = 0;
-
-                                    Console.Write(new String(' ', tasks[index].Task.Length + 2));
-                                    Console.CursorLeft = 0;
-                                    Console.Write(index + 1 + "." + res[2]);
-                                }
-                                tasks[index].Task = res[2];
-                            }
-                        }
-                }
-
-                else if(mainCommand == "delete")
-                {
-                    if(res.Length != 2 || mainAccount == null || !isTaskListDisplayed)
-                    {
-
-                    }
-                    else 
-                        using (HttpClient client = new HttpClient(clientHandler))
-                        {
-                            int index = Convert.ToInt32(res[1]) - 1;
-                            int trueIndex = index;
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Delete, new Uri(url + "/task/delete/" + tasks[index].Id));
-                            var responce = await client.SendAsync(message);
-                            if (responce.IsSuccessStatusCode)
-                            {
-                                int cleanL = tasks[index].Task.Length + 2;
-                                var a = await responce.Content.ReadAsStringAsync();
-                                var iS = JsonSerializer.Deserialize<bool>(a);
-                                if (iS)
-                                {
-                                    Console.CursorTop = index + 1;
-                                    for (; index < tasks.Count - 1; index++)
-                                    {
-                                        Console.CursorTop = index + 1;
-                                        Console.CursorLeft = 0;
-                                        Console.Write(new String(' ', tasks[index].Task.Length + 2));
-                                        Console.CursorLeft = 0;
-                                        Console.WriteLine(index + 1 + "." + tasks[index + 1].Task);
-                                    }
-                                    Console.Write(new String(' ', tasks[index].Task.Length + 2));
-                                    Console.CursorLeft = 0;
-
-                                    inputLine--;
-                                    tasks.RemoveAt(trueIndex);
-                                    for (int i = trueIndex; i < tasks.Count; i++)
-                                    {
-                                        tasks[i].SortId--;
-                                    }
+                                    MainMessage = stringResponce;
                                 }
                             }
                         }
-                }
-
-                else if(mainCommand == "switch")
-                {
-                    if(res.Length != 3 || mainAccount == null || !isTaskListDisplayed)
-                    {
-
+                        else
+                        {
+                            MainMessage = "Can't retriew tasks. User is not logged in";
+                        }
                     }
                     else
-                        using (HttpClient client = new HttpClient(clientHandler))
-                        {
-                            int realFirstIndex = Convert.ToInt32(res[1]);
-                            int realSecondIndex = Convert.ToInt32(res[2]);
-                            int first = tasks[Convert.ToInt32(res[1]) - 1].SortId;
-                            int second = tasks[Convert.ToInt32(res[2]) - 1].SortId;
-
-                            HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Put,new Uri($"{url}/task/switch/{mainAccount.Id}/{first}/{second}"));
-                            var responce = await client.SendAsync(message);
-                            if (responce.IsSuccessStatusCode)
-                            {
-                                string sResult = await responce.Content.ReadAsStringAsync();
-                                bool iS = JsonSerializer.Deserialize<bool>(sResult);
-                                if (iS)
-                                {
-                                    Console.CursorTop = realFirstIndex;
-                                    Console.CursorLeft = 0;
-                                    Console.Write(new String(' ', tasks[realFirstIndex - 1].Task.Length + 2));
-                                    Console.CursorLeft = 0;
-                                    Console.Write(realFirstIndex + "." + tasks[realSecondIndex - 1].Task);
-                                    Console.CursorLeft = 0;
-                                    Console.CursorTop = realSecondIndex;
-                                    Console.Write(new String(' ', tasks[realSecondIndex - 1].Task.Length + 2));
-                                    Console.CursorLeft = 0;
-                                    Console.Write(realSecondIndex + "." + tasks[realFirstIndex - 1].Task);
-
-                                    TaskModel temp = tasks[realFirstIndex - 1];
-                                    tasks[realFirstIndex - 1] = tasks[realSecondIndex - 1];
-                                    tasks[realSecondIndex - 1] = temp;
-
-                                    int tempSortId = tasks[realFirstIndex - 1].SortId;
-                                    tasks[realFirstIndex - 1].SortId = tasks[realSecondIndex - 1].SortId;
-                                    tasks[realSecondIndex - 1].SortId = tempSortId;
-                                }
-                            }
-                        }
+                    {
+                        MainMessage = "Incorrect \"tasks\" command parameters";
+                    }
                 }
-                clientHandler = new HttpClientHandler();
-                clientHandler.ServerCertificateCustomValidationCallback = (sender, cert, chain, sslPolicyErrors) => { return true; };
+                else
+                {
+                    MainMessage = "Wrong command!";
+                }
 
-                Console.CursorLeft = 0;
-                Console.CursorTop = inputLine;
-                commandLine = Console.ReadLine() ?? "";
-                Console.CursorTop = inputLine;
-                Console.Write(new String(' ', commandLine.Length));
-                Console.CursorLeft = 0;
+                handler = new HttpClientHandler();
+                handler.ServerCertificateCustomValidationCallback = (sender, cert, chain, ss) => { return true; };
+
+                SetConsoleCursor(0, inputLine);
+
+                commandLine = (Console.ReadLine() ?? "").Trim();
+                Clean(0, inputLine, commandLine.Count());
             }
+
+            handler.Dispose();
+        }
+
+        public static void SetConsoleCursor(int x, int y)
+        {
+            Console.CursorLeft = x;
+            Console.CursorTop = y;
+        }
+
+        public static void Clean(int x, int y, int length)
+        {
+            (int x, int y) originalCoordinates = (Console.CursorLeft, Console.CursorTop);
+
+            Console.CursorLeft = x; 
+            Console.CursorTop = y;
+
+            Console.Write(new String(' ', length));
+
+            Console.CursorLeft = originalCoordinates.x;
+            Console.CursorTop = originalCoordinates.y;
+        }
+
+        public static void WriteAt(int x, int y, string message)
+        {
+            (int x, int y) originalCoordinates = (Console.CursorLeft, Console.CursorTop);
+
+            Console.CursorLeft = x;
+            Console.CursorTop = y;
+
+            Console.Write(message);
+
+            Console.CursorLeft = originalCoordinates.x;
+            Console.CursorTop = originalCoordinates.y;
         }
     }
 }

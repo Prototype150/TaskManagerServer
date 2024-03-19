@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ConsoleTaskManager": {
+      "commandName": "Project",
+      "commandLineArgs": "26.218.3.87 7025"
+    }
+  }
+}
