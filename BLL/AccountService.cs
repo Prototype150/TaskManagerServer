@@ -1,18 +1,15 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using TaskManagerServer.BLL.Interfaces;
-using TaskManagerServer.DAL.Interfaces;
+﻿
+
+using BLL.Interfaces;
+using DAL.Interfaces;
 using Models;
 
-namespace TaskManagerServer.BLL
+namespace BLL
 {
-    public class WrongInfoException : Exception
-    {
-        public WrongInfoException(string message):base(message) { }
-    }
-    public class AccountManager : IAccountManager
+    public class AccountService : IAccountService
     {
         private IAccountDataManager _accountDataManager;
-        public AccountManager(IAccountDataManager accountDataManager) {
+        public AccountService(IAccountDataManager accountDataManager) {
             _accountDataManager = accountDataManager;
         }
 

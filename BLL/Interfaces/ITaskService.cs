@@ -1,8 +1,8 @@
 ﻿using Models;
 
-namespace TaskManagerServer.BLL.Interfaces
+namespace BLL.Interfaces
 {
-    public interface ITaskManager
+    public interface ITaskService
     {
         IEnumerable<TaskModel> GetAccountTasks(int accountId);
         (TaskModel? result, string message) AddTask(TaskModel newTask);

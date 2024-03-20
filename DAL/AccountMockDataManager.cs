@@ -1,7 +1,7 @@
-﻿using TaskManagerServer.DAL.Interfaces;
+﻿using DAL.Interfaces;
 using Models;
 
-namespace TaskManagerServer.DAL
+namespace DAL
 {
     public class AccountMockDataManager : IAccountDataManager
     {

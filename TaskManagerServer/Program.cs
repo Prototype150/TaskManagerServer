@@ -1,16 +1,16 @@
-using TaskManagerServer.BLL;
-using TaskManagerServer.BLL.Interfaces;
-using TaskManagerServer.DAL;
-using TaskManagerServer.DAL.Interfaces;
+using BLL;
+using BLL.Interfaces;
+using DAL;
+using DAL.Interfaces;
 
 var builder = WebApplication.CreateBuilder();
 
 builder.WebHost.UseUrls($"https://{args[0]}:{args[1]}", $"http://{args[0]}:{args[2]}");
 
 builder.Services.AddSingleton<IAccountDataManager, AccountMockDataManager>();
-builder.Services.AddSingleton<IAccountManager, AccountManager>();
+builder.Services.AddSingleton<IAccountService, AccountService>();
 builder.Services.AddSingleton<ITaskDataManager, TaskMockDataManager>();
-builder.Services.AddSingleton<ITaskManager, TaskManager>();
+builder.Services.AddSingleton<ITaskService, TaskService>();
 
 builder.Services.AddControllers();
 

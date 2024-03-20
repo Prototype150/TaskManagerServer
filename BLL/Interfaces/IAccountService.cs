@@ -1,8 +1,9 @@
-﻿using Models;
+﻿
+using Models;
 
-namespace TaskManagerServer.BLL.Interfaces
+namespace BLL.Interfaces
 {
-    public interface IAccountManager
+    public interface IAccountService
     {
         (AccountModel? model, string message) Login(AccountModel account);
         (AccountModel? model, string message) Register(AccountModel newAccount);

@@ -2,7 +2,7 @@
   "profiles": {
     "http": {
       "commandName": "Project",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "launchUrl": "task/0",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
@@ -13,7 +13,7 @@
     "https": {
       "commandName": "Project",
       "commandLineArgs": "26.218.3.87 7025 5033",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "launchUrl": "task/2",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
@@ -23,7 +23,7 @@
     },
     "IIS Express": {
       "commandName": "IISExpress",
-      "launchBrowser": true,
+      "launchBrowser": false,
       "launchUrl": "task/0",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

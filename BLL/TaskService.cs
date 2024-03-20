@@ -1,14 +1,14 @@
-﻿using Models;
-using TaskManagerServer.BLL.Interfaces;
-using TaskManagerServer.DAL.Interfaces;
+﻿using BLL.Interfaces;
+using DAL.Interfaces;
+using Models;
 
-namespace TaskManagerServer.BLL
+namespace BLL
 {
-    public class TaskManager : ITaskManager
+    public class TaskService : ITaskService
     {
         private ITaskDataManager _taskDataManager;
 
-        public TaskManager(ITaskDataManager taskDataManager)
+        public TaskService(ITaskDataManager taskDataManager)
         {
              _taskDataManager = taskDataManager;
         }

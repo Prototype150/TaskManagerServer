@@ -1,7 +1,7 @@
+using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Models;
 using System.Security.Principal;
-using TaskManagerServer.BLL.Interfaces;
 using TaskManagerServer.Models.Validations;
 
 namespace TaskManagerServer.Controllers
@@ -10,8 +10,8 @@ namespace TaskManagerServer.Controllers
     [Route("[controller]")]
     public class AccountController : ControllerBase
     {
-        private IAccountManager _accountManager;
-        public AccountController(IAccountManager accountManager)
+        private IAccountService _accountManager;
+        public AccountController(IAccountService accountManager)
         {
             _accountManager = accountManager;
         }

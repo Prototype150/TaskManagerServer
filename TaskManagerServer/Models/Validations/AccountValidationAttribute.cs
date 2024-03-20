@@ -1,6 +1,6 @@
 ﻿using Models;
 using System.ComponentModel.DataAnnotations;
-using TaskManagerServer.BLL.Interfaces;
+using BLL.Interfaces;
 
 namespace TaskManagerServer.Models.Validations
 {

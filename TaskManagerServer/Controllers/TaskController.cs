@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Models;
-using TaskManagerServer.BLL.Interfaces;
+using BLL.Interfaces;
 using TaskManagerServer.Models.Validations;
 
 namespace TaskManagerServer.Controllers
@@ -10,9 +10,9 @@ namespace TaskManagerServer.Controllers
     [Route("[controller]")]
     public class TaskController : ControllerBase
     {
-        private ITaskManager _taskManager;
+        private ITaskService _taskManager;
 
-        public TaskController(ITaskManager taskManager) {
+        public TaskController(ITaskService taskManager) {
             _taskManager = taskManager;
         }
 

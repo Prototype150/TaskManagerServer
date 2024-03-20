@@ -1,6 +1,6 @@
 ﻿using Models;
 
-namespace TaskManagerServer.DAL.Interfaces
+namespace DAL.Interfaces
 {
     public interface IAccountDataManager
     {
