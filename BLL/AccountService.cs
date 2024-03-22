@@ -39,7 +39,7 @@ namespace BLL
                 return (null, "empty:username");
             if (string.IsNullOrWhiteSpace(newAccount.Password))
                 return (null, "empty:password");
-            if (_accountDataManager.GetAccountByUsername(newAccount.Username) != null)
+            if (_accountDataManager.IsExist(newAccount.Username))
                 return (null, "exists");
 
             _accountDataManager.PostAccount(newAccount);

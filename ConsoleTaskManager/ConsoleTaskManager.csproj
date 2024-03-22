@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Models\Models.csproj" />
+    <ProjectReference Include="..\SQLDataManager\SQLDataManager.csproj" />
   </ItemGroup>
 
 </Project>

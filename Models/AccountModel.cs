@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace Models
 {
@@ -10,6 +11,7 @@ namespace Models
             Id = -1;
         }
 
+        [Key]
         public int Id { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
