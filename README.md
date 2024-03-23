@@ -5,6 +5,7 @@ The ip adress and ports for the server are set in the main method arguments in t
 To use the server you should:
 
 1.Install a local network manager of your choice
+
 2.Use the ip adress from the network manager as the first argument and any two ports you find suitable as the second and third argument.
 
 Here are links to already existing front-end application you can use with this server:
