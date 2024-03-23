@@ -1,6 +1,5 @@
 using BLL;
 using BLL.Interfaces;
-using DAL;
 using DAL.Interfaces;
 using SQLDataManager;
 
