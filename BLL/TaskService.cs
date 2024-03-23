@@ -15,7 +15,7 @@ namespace BLL
 
         public (TaskModel? result, string message) AddTask(TaskModel newTask)
         {
-            if (newTask.AccountId < 0)
+            if (newTask.AccountId < 1)
                 return (null, "id");
             if (string.IsNullOrWhiteSpace(newTask.Task))
                 return (null, "empty:task");
@@ -23,11 +23,11 @@ namespace BLL
                 return (null, "out_of_bounds:task_id");
 
             var res = _taskDataManager.AddTask(newTask);
+
             if (res == null)
-                return (null, "unknown_mistake");
+                return (null, "unknown_error");
             return (res, "ok");
         }
-
 
         public (bool result, string message) DeleteTask(int taskId)
         {
@@ -38,10 +38,10 @@ namespace BLL
 
             if (!res)
             {
-                return (false, "unknown_mistake");
+                return (false, "unknown_error");
             }
 
-            return (res, "ok");
+            return (true, "ok");
         }
 
         public IEnumerable<TaskModel> GetAccountTasks(int accountId)
@@ -67,7 +67,7 @@ namespace BLL
             bool res = _taskDataManager.UpdateTask(task.Id, task);
 
             if (!res)
-                return (false, "unknown_mistake");
+                return (false, "unknown_error");
 
             return (res, "ok");
         }

@@ -2,7 +2,6 @@
   "profiles": {
     "http": {
       "commandName": "Project",
-      "launchBrowser": false,
       "launchUrl": "task/0",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
@@ -12,8 +11,7 @@
     },
     "https": {
       "commandName": "Project",
-      "commandLineArgs": "26.218.3.87 7025 5033",
-      "launchBrowser": false,
+      "commandLineArgs": "26.218.3.87 7025 5033 Server=DESKTOP-27FJFAJ\\\\EXTERMINATUS;Database=TaskManagerDatabase;Trusted_Connection=true;TrustServerCertificate=True",
       "launchUrl": "task/2",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
@@ -23,7 +21,6 @@
     },
     "IIS Express": {
       "commandName": "IISExpress",
-      "launchBrowser": false,
       "launchUrl": "task/0",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

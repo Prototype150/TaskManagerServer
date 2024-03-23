@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SQLDataManager
 {
-    public class AccountSQLDataManager : IAccountDataManager
+    public class AccountSQLDataManager : IAccountDataManager, IDisposable
     {
         private string _connectionString;
         private TaskManagerDbContext _dbContext;
@@ -32,6 +32,11 @@ namespace SQLDataManager
             newAccount.Id = 0;
             _dbContext.Accounts.Add(newAccount);
             _dbContext.SaveChanges();
+        }
+
+        public void Dispose()
+        {
+            _dbContext.Dispose();
         }
     }
 }

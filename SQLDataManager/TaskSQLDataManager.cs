@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SQLDataManager
 {
-    public class TaskSQLDataManager : ITaskDataManager
+    public class TaskSQLDataManager : ITaskDataManager, IDisposable
     {
         private string _connectionString;
         private TaskManagerDbContext _dbContext;
@@ -50,28 +50,59 @@ namespace SQLDataManager
         public bool RemoveTask(int taskId)
         {
             var t = _dbContext.Tasks.FirstOrDefault(x => x.Id == taskId);
+
+            if (t == null)
+                return false;
+
             _dbContext.Tasks.Remove(t);
             foreach (var task in _dbContext.Tasks.Where(x => x.SortId > t.SortId && x.AccountId == t.AccountId))
             {
                 task.SortId--;
             }
+
             _dbContext.SaveChanges();
             return true;
         }
 
         public bool SwitchSortId(int accountId, int first, int second)
         {
-            throw new NotImplementedException();
+            var firstTask = _dbContext.Tasks.FirstOrDefault(x => x.AccountId == accountId && x.SortId == first);
+            var secondTask = _dbContext.Tasks.FirstOrDefault(x => x.AccountId == accountId && x.SortId == second);
+
+            if (firstTask == null || secondTask == null)
+                return false;
+
+            int firstSortId = firstTask.SortId;
+            firstTask.SortId = secondTask.SortId;
+            secondTask.SortId = firstSortId;
+
+            _dbContext.Tasks.Update(firstTask);
+            _dbContext.Tasks.Update(secondTask);
+
+            _dbContext.SaveChanges();
+
+            return true;
         }
 
         public bool UpdateTask(int taskId, TaskModel taskModel)
         {
             var task = _dbContext.Tasks.FirstOrDefault(x => x.Id == taskId);
+
+            if (task == null)
+                return false;
+
             task.Task = taskModel.Task;
             task.IsCompleted = taskModel.IsCompleted;
+
             _dbContext.Tasks.Update(task);
             _dbContext.SaveChanges();
+            
             return true;
+        }
+
+        public void Dispose()
+        {
+            _dbContext.Dispose();
         }
     }
 }

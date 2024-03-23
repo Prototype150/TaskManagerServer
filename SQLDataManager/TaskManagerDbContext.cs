@@ -21,8 +21,7 @@ namespace SQLDataManager
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            string connectionString = "Server=DESKTOP-27FJFAJ\\EXTERMINATUS;Database=TaskManagerDatabase;Trusted_Connection=true;TrustServerCertificate=True";
-            optionsBuilder.UseSqlServer(connectionString);
+            optionsBuilder.UseSqlServer(_connectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -30,6 +29,7 @@ namespace SQLDataManager
             modelBuilder.Entity<AccountModel>().HasKey(x => x.Id);
             modelBuilder.Entity<TaskModel>().HasKey(x => x.Id);
             modelBuilder.Entity<TaskModel>().HasOne<AccountModel>().WithMany().HasForeignKey(x => x.AccountId).HasPrincipalKey(x => x.Id);
+            modelBuilder.Entity<TaskModel>().HasIndex(x => new { x.AccountId, x.SortId }).IsUnique();
         }
     }
 }
