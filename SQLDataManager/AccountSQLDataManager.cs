@@ -4,39 +4,42 @@ using Microsoft.EntityFrameworkCore;
 
 namespace SQLDataManager
 {
-    public class AccountSQLDataManager : IAccountDataManager, IDisposable
+    public class AccountSQLDataManager : IAccountDataManager
     {
         private string _connectionString;
-        private TaskManagerDbContext _dbContext;
 
         public AccountSQLDataManager(string connectionString)
         {
             _connectionString = connectionString;
-            _dbContext = new TaskManagerDbContext(connectionString);
         }
 
-        public AccountModel? GetAccountByUsername(string username)
+        public async Task<AccountModel?> GetAccountByUsername(string username)
+
         {
-            var account = _dbContext.Accounts.FirstOrDefault(x => x.Username == username);
-            return account;
+            using (TaskManagerDbContext db = new TaskManagerDbContext(_connectionString))
+            {
+                var account = await db.Accounts.FirstOrDefaultAsync(x => x.Username == username);
+                return account;
+            }
         }
 
-        public bool IsExist(string username)
+        public async Task<bool> IsExist(string username)
         {
-            _dbContext.Database.EnsureCreated();
-            return _dbContext.Accounts.Any(x => x.Username == username);
+            using (TaskManagerDbContext db = new TaskManagerDbContext(_connectionString))
+            {
+                return await db.Accounts.AnyAsync(x => x.Username == username);
+            }
         }
 
-        public void PostAccount(AccountModel newAccount)
+        public async Task<bool> PostAccount(AccountModel newAccount)
         {
-            newAccount.Id = 0;
-            _dbContext.Accounts.Add(newAccount);
-            _dbContext.SaveChanges();
-        }
-
-        public void Dispose()
-        {
-            _dbContext.Dispose();
+            using (TaskManagerDbContext db = new TaskManagerDbContext(_connectionString))
+            {
+                newAccount.Id = 0;
+                var result = (await db.Accounts.AddAsync(newAccount)).Entity;
+                await db.SaveChangesAsync();
+                return result != null;
+            }
         }
     }
 }

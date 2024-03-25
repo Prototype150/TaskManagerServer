@@ -4,12 +4,12 @@ namespace DAL.Interfaces
 {
     public interface ITaskDataManager
     {
-        IEnumerable<TaskModel> GetAccountTasks(int accountId);
-        TaskModel? AddTask(TaskModel taskModel);
-        bool RemoveTask(int taskId);
-        bool UpdateTask(int taskId, TaskModel taskModel);
-        bool IsExist(int taskId);
-        TaskModel? Get(int taskId);
-        bool SwitchSortId(int accountId, int first, int second);
+        Task<IEnumerable<TaskModel>> GetAccountTasks(int accountId);
+        Task<TaskModel?> AddTask(TaskModel taskModel);
+        Task<bool> RemoveTask(int taskId);
+        Task<bool> UpdateTask(int taskId, TaskModel taskModel);
+        Task<bool> IsExist(int taskId);
+        Task<TaskModel?> Get(int taskId);
+        Task<bool> SwitchSortId(int accountId, int firstTaskId, int secondTaskId);
     }
 }

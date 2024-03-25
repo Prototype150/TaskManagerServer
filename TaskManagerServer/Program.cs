@@ -1,6 +1,7 @@
 using BLL;
 using BLL.Interfaces;
 using DAL.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using SQLDataManager;
 
 string connectionString = args[3];

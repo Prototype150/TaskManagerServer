@@ -5,8 +5,8 @@ namespace BLL.Interfaces
 {
     public interface IAccountService
     {
-        (AccountModel? model, string message) Login(AccountModel account);
-        (AccountModel? model, string message) Register(AccountModel newAccount);
-        bool IsExist(string username);
+        Task<(AccountModel? model, string message)> Login(AccountModel account);
+        Task<(AccountModel? model, string message)> Register(AccountModel newAccount);
+        Task<bool> IsExist(string username);
     }
 }

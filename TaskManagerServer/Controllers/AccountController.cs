@@ -18,13 +18,13 @@ namespace TaskManagerServer.Controllers
 
         [HttpPost]
         [Route("register")]
-        public IActionResult Register([FromBody]AccountModel newAccount)
+        public async Task<IActionResult> Register([FromBody]AccountModel newAccount)
         {
             if (string.IsNullOrWhiteSpace(newAccount.Username))
                 return BadRequest("empty:username");
             if (string.IsNullOrWhiteSpace(newAccount.Username))
                 return BadRequest("empty:password");
-            (AccountModel? account, string message) res = _accountManager.Register(newAccount);
+            (AccountModel? account, string message) res = await _accountManager.Register(newAccount);
             if (res.account == null)
             {
                 return BadRequest(res.message);
@@ -36,13 +36,13 @@ namespace TaskManagerServer.Controllers
 
         [HttpGet]
         [Route("login")]
-        public IActionResult Login([FromBody]AccountModel account)
+        public async Task<IActionResult> Login([FromBody]AccountModel account)
         {
             if (string.IsNullOrWhiteSpace(account.Username))
                 return BadRequest("empty:username");
             if (string.IsNullOrWhiteSpace(account.Password))
                 return BadRequest("empty:password");
-            (AccountModel? account, string message) res = _accountManager.Login(account);
+            (AccountModel? account, string message) res = await _accountManager.Login(account);
             if (res.account == null)
             {
                 if (res.message == "not_exist")

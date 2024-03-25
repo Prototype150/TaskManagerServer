@@ -19,16 +19,17 @@ namespace TaskManagerServer.Controllers
         [HttpGet]
         [AllowAnonymous]
         [Route("{accountId}")]
-        public IActionResult GetAccountTasks(int accountId)
+        public async Task<IActionResult> GetAccountTasks(int accountId)
         {
-            return Ok(_taskManager.GetAccountTasks(accountId));
+            var a = await _taskManager.GetAccountTasks(accountId);
+            return Ok(a);
         }
 
         [HttpPost]
         [Route("add")]
-        public IActionResult AddTask([FromBody][TaskValidation]TaskModel taskModel)
+        public async Task<IActionResult> AddTask([FromBody][TaskValidation]TaskModel taskModel)
         {
-            var res = _taskManager.AddTask(taskModel);
+            var res = await _taskManager.AddTask(taskModel);
 
             if (res.result == null)
             {
@@ -40,9 +41,9 @@ namespace TaskManagerServer.Controllers
 
         [HttpPut]
         [Route("switch/{accountId}/{firstId}/{secondId}")]
-        public IActionResult SwitchTasks(int accountId,int firstId, int secondId)
+        public async Task<IActionResult> SwitchTasks(int accountId,int firstId, int secondId)
         {
-            var res = _taskManager.SwitchSortId(accountId, firstId, secondId);
+            var res = await _taskManager.SwitchSortId(accountId, firstId, secondId);
             if (!res.result)
             {
                 return BadRequest(res.message);
@@ -53,23 +54,25 @@ namespace TaskManagerServer.Controllers
 
         [HttpPut]
         [Route("update")]
-        public IActionResult UpdateTask([FromBody][TaskValidation]TaskModel taskModel)
+        public async Task<IActionResult> UpdateTask([FromBody][TaskValidation]TaskModel taskModel)
         {
-            var res = _taskManager.UpdateTask(taskModel);
+
+            var res = await _taskManager.UpdateTask(taskModel);
 
             if (!res.result)
             {
                 return BadRequest(res.message);
             }
 
+            Console.WriteLine("Successfuly updated task");
             return Ok(res.result);
         }
 
         [HttpDelete]
         [Route("delete/{taskId}")]
-        public IActionResult DeleteTask(int taskId)
+        public async Task<IActionResult> DeleteTask(int taskId)
         {
-            var res = _taskManager.DeleteTask(taskId);
+            var res = await _taskManager.DeleteTask(taskId);
 
             return Ok(res.result);
         } 

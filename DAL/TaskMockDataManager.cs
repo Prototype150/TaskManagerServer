@@ -23,7 +23,7 @@ namespace DAL
             AddTask(new TaskModel(2, "heeee",3));
         }
 
-        public TaskModel? AddTask(TaskModel taskModel)
+        public async Task<TaskModel?> AddTask(TaskModel taskModel)
         {
             taskModel.Id = counter++;
             foreach(var t in _tasks.Where(x => x.AccountId == taskModel.AccountId && x.SortId >= taskModel.SortId))
@@ -34,22 +34,17 @@ namespace DAL
             return taskModel;
         }
 
-        public TaskModel? Get(int taskId)
+        public async Task< TaskModel?> Get(int taskId)
         {
             return _tasks.FirstOrDefault(x => x.Id == taskId);
         }
 
-        public IEnumerable<TaskModel> GetAccountTasks(int accountId)
+        public async Task< IEnumerable<TaskModel>> GetAccountTasks(int accountId)
         {
             return _tasks.Where(x => x.AccountId == accountId);
         }
 
-        public bool IsExist(int taskId)
-        {
-            return _tasks.Any(x => x.Id == taskId);
-        }
-
-        public bool RemoveTask(int taskId)
+        public async Task< bool> RemoveTask(int taskId)
         {
             var t = _tasks.FirstOrDefault(x => x.Id == taskId);
             if (t != null)
@@ -65,7 +60,7 @@ namespace DAL
             return true;
         }
 
-        public bool SwitchSortId(int accountId, int first, int second)
+        public async Task< bool> SwitchSortId(int accountId, int first, int second)
         {
             var f = _tasks.FirstOrDefault(x => x.AccountId == accountId && x.SortId == first);
             var s = _tasks.FirstOrDefault(x => x.AccountId == accountId && x.SortId == second);
@@ -80,7 +75,7 @@ namespace DAL
             return true;
         }
 
-        public bool UpdateTask(int taskId, TaskModel taskModel)
+        public async Task<bool> UpdateTask(int taskId, TaskModel taskModel)
         {
             var t = _tasks.FirstOrDefault(x => x.Id == taskId);
 
@@ -95,6 +90,11 @@ namespace DAL
             }
 
             return true;
+        }
+
+        public async Task<bool> IsExist(int taskId)
+        {
+            return _tasks.Any(x => x.Id == taskId);
         }
     }
 }

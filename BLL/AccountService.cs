@@ -13,19 +13,19 @@ namespace BLL
             _accountDataManager = accountDataManager;
         }
 
-        public bool IsExist(string username)
+        public async Task<bool> IsExist(string username)
         {
-            return _accountDataManager.IsExist(username);
+            return await _accountDataManager.IsExist(username);
         }
 
-        public (AccountModel? model, string message) Login(AccountModel account)
+        public async Task<(AccountModel? model, string message)> Login(AccountModel account)
         {
             if (string.IsNullOrWhiteSpace(account.Username))
                 return (null, "empty:username");
             if (string.IsNullOrWhiteSpace(account.Password))
                 return (null, "empty:password");
 
-            var res = _accountDataManager.GetAccountByUsername(account.Username);
+            var res = await _accountDataManager.GetAccountByUsername(account.Username);
             if (res == null)
                 return (null, "not_exist");
             if (res.Password != account.Password)
@@ -33,17 +33,17 @@ namespace BLL
             return (res, "ok");
         }
 
-        public (AccountModel? model, string message) Register(AccountModel newAccount)
+        public async Task<(AccountModel? model, string message)> Register(AccountModel newAccount)
         {
             if (string.IsNullOrWhiteSpace(newAccount.Username))
                 return (null, "empty:username");
             if (string.IsNullOrWhiteSpace(newAccount.Password))
                 return (null, "empty:password");
-            if (_accountDataManager.IsExist(newAccount.Username))
+            if (await _accountDataManager.IsExist(newAccount.Username))
                 return (null, "exists");
 
-            _accountDataManager.PostAccount(newAccount);
-            var res = _accountDataManager.GetAccountByUsername(newAccount.Username);
+            await _accountDataManager.PostAccount(newAccount);
+            var res = await _accountDataManager.GetAccountByUsername(newAccount.Username);
 
             return (res, "ok");
         }

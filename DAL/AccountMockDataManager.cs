@@ -13,20 +13,21 @@ namespace DAL
             counter = 0;
         }
 
-        public AccountModel? GetAccountByUsername(string username)
+        public async Task<AccountModel?> GetAccountByUsername(string username)
         {
             return _accounts.FirstOrDefault(x => x.Username == username);
         }
 
-        public bool IsExist(string username)
+        public async Task<bool> IsExist(string username)
         {
             return _accounts.Any(x=> x.Username == username);
         }
 
-        public void PostAccount(AccountModel newAccount)
+        public async Task<bool> PostAccount(AccountModel newAccount)
         {
             newAccount.Id = counter++;
             _accounts.Add(newAccount);
+            return _accounts.Contains(newAccount);
         }
     }
 }

@@ -11,7 +11,7 @@
     },
     "https": {
       "commandName": "Project",
-      "commandLineArgs": "26.218.3.87 7025 5033 Server=DESKTOP-27FJFAJ\\\\EXTERMINATUS;Database=TaskManagerDatabase;Trusted_Connection=true;TrustServerCertificate=True",
+      "commandLineArgs": "26.218.3.87 7025 5033 Server=DESKTOP-27FJFAJ\\EXTERMINATUS;Database=TaskManagerDatabase;Trusted_Connection=true;TrustServerCertificate=True",
       "launchUrl": "task/2",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

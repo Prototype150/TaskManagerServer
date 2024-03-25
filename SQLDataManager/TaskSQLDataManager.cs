@@ -1,4 +1,5 @@
 ﻿using DAL.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Models;
 using System;
 using System.Collections.Generic;
@@ -8,101 +9,117 @@ using System.Threading.Tasks;
 
 namespace SQLDataManager
 {
-    public class TaskSQLDataManager : ITaskDataManager, IDisposable
+    public class TaskSQLDataManager : ITaskDataManager
     {
         private string _connectionString;
-        private TaskManagerDbContext _dbContext;
 
         public TaskSQLDataManager(string connectionString) { 
             _connectionString = connectionString;
-            _dbContext = new TaskManagerDbContext(_connectionString);
         }
 
-        public TaskModel? AddTask(TaskModel taskModel)
+        public async Task<TaskModel?> AddTask(TaskModel taskModel)
         {
-            foreach (var task in _dbContext.Tasks.Where(x => x.SortId >= taskModel.SortId && x.AccountId == taskModel.AccountId))
+            using (TaskManagerDbContext db = new TaskManagerDbContext(_connectionString))
             {
-                task.SortId++;
+                foreach (var task in db.Tasks.Where(x => x.SortId >= taskModel.SortId && x.AccountId == taskModel.AccountId))
+                {
+                    task.SortId++;
+                }
+
+                taskModel.Id = 0;
+                var a = (await db.Tasks.AddAsync(taskModel)).Entity;
+                await db.SaveChangesAsync();
+                return a;
             }
-
-            taskModel.Id = 0;
-            var a = _dbContext.Tasks.Add(taskModel).Entity;
-            _dbContext.SaveChanges();
-            return a;
         }
 
-        public TaskModel? Get(int taskId)
+        public async Task<TaskModel?> Get(int taskId)
         {
-            return _dbContext.Tasks.FirstOrDefault(x => x.Id == taskId);
+            using (TaskManagerDbContext db = new TaskManagerDbContext(_connectionString))
+                return await db.Tasks.FirstOrDefaultAsync(x => x.Id == taskId);
         }
 
-        public IEnumerable<TaskModel> GetAccountTasks(int accountId)
+        public async Task<IEnumerable<TaskModel>> GetAccountTasks(int accountId)
         {
-            var tasks = _dbContext.Tasks.Where(x => x.AccountId == accountId);
-            return tasks;
-        }
-
-        public bool IsExist(int taskId)
-        {
-            return _dbContext.Tasks.Any(x => x.Id == taskId);
-        }
-
-        public bool RemoveTask(int taskId)
-        {
-            var t = _dbContext.Tasks.FirstOrDefault(x => x.Id == taskId);
-
-            if (t == null)
-                return false;
-
-            _dbContext.Tasks.Remove(t);
-            foreach (var task in _dbContext.Tasks.Where(x => x.SortId > t.SortId && x.AccountId == t.AccountId))
+            using (TaskManagerDbContext db = new TaskManagerDbContext(_connectionString))
             {
-                task.SortId--;
+                List<TaskModel> tasks = new List<TaskModel>();
+                foreach(var task in db.Tasks.Where(x => x.AccountId == accountId))
+                {
+                    tasks.Add(task);
+                }
+                return tasks;
             }
-
-            _dbContext.SaveChanges();
-            return true;
         }
 
-        public bool SwitchSortId(int accountId, int first, int second)
+        public async Task<bool> IsExist(int taskId)
         {
-            var firstTask = _dbContext.Tasks.FirstOrDefault(x => x.AccountId == accountId && x.SortId == first);
-            var secondTask = _dbContext.Tasks.FirstOrDefault(x => x.AccountId == accountId && x.SortId == second);
-
-            if (firstTask == null || secondTask == null)
-                return false;
-
-            int firstSortId = firstTask.SortId;
-            firstTask.SortId = secondTask.SortId;
-            secondTask.SortId = firstSortId;
-
-            _dbContext.Tasks.Update(firstTask);
-            _dbContext.Tasks.Update(secondTask);
-
-            _dbContext.SaveChanges();
-
-            return true;
+            using (TaskManagerDbContext db = new TaskManagerDbContext(_connectionString))
+            {
+                return await db.Tasks.AnyAsync(x => x.Id == taskId);
+            }
         }
 
-        public bool UpdateTask(int taskId, TaskModel taskModel)
+        public async Task<bool> RemoveTask(int taskId)
         {
-            var task = _dbContext.Tasks.FirstOrDefault(x => x.Id == taskId);
+            using (TaskManagerDbContext db = new TaskManagerDbContext(_connectionString))
+            {
+                var t = await db.Tasks.FirstOrDefaultAsync(x => x.Id == taskId);
 
-            if (task == null)
-                return false;
+                if (t == null)
+                    return false;
 
-            task.Task = taskModel.Task;
-            task.IsCompleted = taskModel.IsCompleted;
+                db.Tasks.Remove(t);
+                foreach (var task in db.Tasks.Where(x => x.SortId > t.SortId && x.AccountId == t.AccountId))
+                {
+                    task.SortId--;
+                }
 
-            _dbContext.Tasks.Update(task);
-            _dbContext.SaveChanges();
-            
-            return true;
+                await db.SaveChangesAsync();
+                return true;
+            }
         }
 
-        public void Dispose()
+        public async Task<bool> SwitchSortId(int accountId, int firstTaskId, int secondTaskId)
         {
-            _dbContext.Dispose();
+            using (TaskManagerDbContext db = new TaskManagerDbContext(_connectionString))
+            {
+                var firstTask = await db.Tasks.FirstOrDefaultAsync(x => x.Id == firstTaskId);
+                var secondTask = await db.Tasks.FirstOrDefaultAsync(x => x.Id == secondTaskId);
+
+                if (firstTask == null || secondTask == null)
+                    return false;
+
+                int firstSortId = firstTask.SortId;
+                firstTask.SortId = secondTask.SortId;
+                secondTask.SortId = firstSortId;
+
+                db.Tasks.Update(firstTask);
+                db.Tasks.Update(secondTask);
+
+                await db.SaveChangesAsync();
+
+                return true;
+            }
+        }
+
+        public async Task<bool> UpdateTask(int taskId, TaskModel taskModel)
+        {
+            using (TaskManagerDbContext db = new TaskManagerDbContext(_connectionString))
+            {
+                var task = await db.Tasks.FirstOrDefaultAsync(x => x.Id == taskId);
+
+                if (task == null)
+                    return false;
+
+                task.Task = taskModel.Task;
+                task.IsCompleted = taskModel.IsCompleted;
+
+                db.Tasks.Update(task);
+                await db.SaveChangesAsync();
+
+                return true;
+            }
         }
     }
 }
