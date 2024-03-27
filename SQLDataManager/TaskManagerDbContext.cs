@@ -27,9 +27,15 @@ namespace SQLDataManager
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AccountModel>().HasKey(x => x.Id);
+            modelBuilder.Entity<AccountModel>().HasAlternateKey(x => x.Username);
             modelBuilder.Entity<TaskModel>().HasKey(x => x.Id);
             modelBuilder.Entity<TaskModel>().HasOne<AccountModel>().WithMany().HasForeignKey(x => x.AccountId).HasPrincipalKey(x => x.Id);
-            modelBuilder.Entity<TaskModel>().HasIndex(x => new { x.AccountId, x.SortId }).IsUnique();
+            modelBuilder.Entity<TaskModel>().HasAlternateKey(x => new { x.AccountId, x.SortId });
+        }
+
+        public bool EnshureCreation()
+        {
+            return Database.EnsureCreated();
         }
     }
 }

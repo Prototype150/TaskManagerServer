@@ -43,12 +43,7 @@ namespace SQLDataManager
         {
             using (TaskManagerDbContext db = new TaskManagerDbContext(_connectionString))
             {
-                List<TaskModel> tasks = new List<TaskModel>();
-                foreach(var task in db.Tasks.Where(x => x.AccountId == accountId))
-                {
-                    tasks.Add(task);
-                }
-                return tasks;
+                return db.Tasks.Where(x => x.AccountId == accountId).ToList();
             }
         }
 

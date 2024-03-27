@@ -18,6 +18,11 @@ builder.Services.AddSingleton<IAccountService, AccountService>();
 builder.Services.AddSingleton(x => taskDataManager);
 builder.Services.AddSingleton<ITaskService, TaskService>();
 
+using (TaskManagerDbContext db = new TaskManagerDbContext(connectionString))
+{
+    db.Database.EnsureCreated();
+}
+
 builder.Services.AddControllers();
 
 var app = builder.Build();
