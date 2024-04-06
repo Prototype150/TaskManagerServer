@@ -64,7 +64,6 @@ namespace TaskManagerServer.Controllers
                 return BadRequest(res.message);
             }
 
-            Console.WriteLine("Successfuly updated task");
             return Ok(res.result);
         }
 

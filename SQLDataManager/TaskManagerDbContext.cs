@@ -1,16 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SQLDataManager
 {
     public class TaskManagerDbContext : DbContext
     {
         private string _connectionString;
+
         public TaskManagerDbContext(string connectionString)
         {
             _connectionString = connectionString;
@@ -27,15 +23,10 @@ namespace SQLDataManager
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<AccountModel>().HasKey(x => x.Id);
-            modelBuilder.Entity<AccountModel>().HasAlternateKey(x => x.Username);
+            modelBuilder.Entity<AccountModel>().HasIndex(x => x.Username);
             modelBuilder.Entity<TaskModel>().HasKey(x => x.Id);
             modelBuilder.Entity<TaskModel>().HasOne<AccountModel>().WithMany().HasForeignKey(x => x.AccountId).HasPrincipalKey(x => x.Id);
-            modelBuilder.Entity<TaskModel>().HasAlternateKey(x => new { x.AccountId, x.SortId });
-        }
-
-        public bool EnshureCreation()
-        {
-            return Database.EnsureCreated();
+            modelBuilder.Entity<TaskModel>().HasIndex(x => new { x.AccountId, x.SortId });
         }
     }
 }
