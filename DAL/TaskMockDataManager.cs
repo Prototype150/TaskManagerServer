@@ -11,16 +11,16 @@ namespace DAL
             _tasks = new List<TaskModel>();
             counter = 0;
 
-            AddTask(new TaskModel(0, "Zero",0));
-            AddTask(new TaskModel(0, "First",1));
-            AddTask(new TaskModel(0, "Second",2));
+            AddTask(new TaskModel(0, "Zero",0, DateOnly.MinValue));
+            AddTask(new TaskModel(0, "First",1, DateOnly.MinValue));
+            AddTask(new TaskModel(0, "Second",2, DateOnly.MinValue));
 
-            AddTask(new TaskModel(1, "uss",0));
+            AddTask(new TaskModel(1, "uss",0, DateOnly.MinValue));
 
-            AddTask(new TaskModel(2, "ass",0));
-            AddTask(new TaskModel(2, "no",1));
-            AddTask(new TaskModel(2, "yes",2));
-            AddTask(new TaskModel(2, "heeee",3));
+            AddTask(new TaskModel(2, "ass",0, DateOnly.MinValue));
+            AddTask(new TaskModel(2, "no",1, DateOnly.MinValue));
+            AddTask(new TaskModel(2, "yes",2, DateOnly.MinValue));
+            AddTask(new TaskModel(2, "heeee",3, DateOnly.MinValue));
         }
 
         public async Task<TaskModel?> AddTask(TaskModel taskModel)

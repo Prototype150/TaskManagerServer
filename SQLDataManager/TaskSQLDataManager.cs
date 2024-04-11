@@ -109,6 +109,8 @@ namespace SQLDataManager
 
                 task.Task = taskModel.Task;
                 task.IsCompleted = taskModel.IsCompleted;
+                task.State = taskModel.State;
+                task.DueDate = taskModel.DueDate;
 
                 db.Tasks.Update(task);
                 await db.SaveChangesAsync();
